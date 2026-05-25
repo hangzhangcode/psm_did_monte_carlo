@@ -2,6 +2,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 from datetime import datetime
+import sys 
 
 # API 配置
 API_KEY = "sk-wmcphnwnklfzbupquslywxiqzghnaxbmfttdesgebimferkw"
@@ -25,6 +26,21 @@ def save_chat_log(log_content):
     with open(output_file, "a", encoding="utf-8") as f:
         f.write(log_content + "\n\n")
 
+# 支持多行粘贴的输入函数
+def multi_line_input(prompt):
+    print(prompt)
+    lines = []
+    while True:
+        try:
+            line = sys.stdin.readline()
+            if not line:  # 遇到EOF（Ctrl+D）时退出
+                break
+            lines.append(line.rstrip('\n'))
+        except KeyboardInterrupt:
+            return None
+    print("\n"+"-" * 50)
+    return '\n'.join(lines)
+
 # 主聊天函数
 def chat_with_file(file_path):
     file_content = read_text_file(file_path)
@@ -42,7 +58,10 @@ def chat_with_file(file_path):
     save_chat_log(f"--- 对话开始于 {start_time} ---\n")
 
     while True:
-        question = input("我：")
+        question = multi_line_input("我：")
+        if question is None:
+            print("👋 对话结束，记录已保存！")
+            break
         if question.lower() == "exit":
             print("👋 对话结束，记录已保存！")
             break
