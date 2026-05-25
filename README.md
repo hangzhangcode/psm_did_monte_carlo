@@ -5,19 +5,28 @@
 ## 项目结构
 
 ```
-.
-├── monte_carlo.py                # 完整模拟代码（Python）
-├── assignment01_psm_did_monte_carlo.md  # 作业要求
-├── ai_usage_record.md            # AI 工具使用记录（学术诚信）
-├── results_scenario_A.png        # 场景 A 结果图（运行代码生成）
-├── results_scenario_B.png        # 场景 B 结果图
-├── results_scenario_C.png        # 场景 C 结果图
-├── balance_scenario_*.png        # 匹配前后平衡性检验图
-├── ps_distribution_scenario_*.png # 倾向得分共同支持图
-├── summary_bias_comparison.png   # 三个场景偏误汇总图
-├── summary_rmse_comparison.png   # 三个场景 RMSE 汇总图
-└── README.md                     # 本文件
+├── monte_carlo.py                     # 完整模拟代码
+├── assignment01_psm_did_monte_carlo.md # 作业要求
+├── ai_chat.py                         # AI 使用代码
+├── ai_usage_record.md                 # AI 工具使用记录
+├── ai_report.md                       # AI 辅助写作说明
+├── final_report.md                    # 完整作业报告
+├── figures/                           # 图表文件夹
+│   ├── results_scenario_A.png         # 场景 A 结果图
+│   ├── results_scenario_B.png         # 场景 B 结果图
+│   ├── results_scenario_C.png         # 场景 C 结果图
+│   ├── balance_scenario_A.png         # 场景 A 平衡性检验图
+│   ├── balance_scenario_B.png         # 场景 B 平衡性检验图
+│   ├── balance_scenario_C.png         # 场景 C 平衡性检验图
+│   ├── ps_distribution_scenario_A.png # 场景 A 倾向得分分布图
+│   ├── ps_distribution_scenario_B.png # 场景 B 倾向得分分布图
+│   ├── ps_distribution_scenario_C.png # 场景 C 倾向得分分布图
+│   ├── summary_bias_comparison.png    # 三个场景偏误汇总图
+│   └── summary_rmse_comparison.png    # 三个场景 RMSE 汇总图
+└── README.md                          # 项目说明文件
 ```
+
+├──
 
 ## 环境依赖
 
@@ -26,6 +35,8 @@
 ```bash
 pip install numpy pandas scipy scikit-learn matplotlib seaborn tqdm
 ```
+
+AI 使用 Deepseek v4 ，通过调用API进行访问，AI代码使用在 ai_chat.py 中。
 
 ## 快速运行
 
