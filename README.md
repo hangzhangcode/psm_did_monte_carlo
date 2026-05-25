@@ -1,83 +1,148 @@
-# PSM-DID 蒙特卡洛模拟分析
-[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+```markdown
+# PSM-DID Monte Carlo Simulation
 
-本仓库包含完成「机器学习与因果推断」课程作业1的全部代码与分析报告，通过蒙特卡洛（Monte Carlo）模拟系统研究PSM-DID、单独PSM和单独DID方法的识别逻辑、优势与局限性。
+本项目为《机器学习与因果推断》课程作业，通过 Monte Carlo 模拟方法系统评估 **倾向得分匹配-双重差分（PSM-DID）** 方法的识别逻辑、优势、局限和适用场景。研究比较了单独 PSM、单独 DID（基础版和协变量调整版）以及 PSM-DID 三种方法在三种不同数据生成过程（DGP）下的表现，并基于模拟结果对一篇核心期刊实证论文进行了方法学评价。
 
-## 作业目标
-1. 设计可控的数据生成过程，构造三种典型场景对比不同因果推断方法的表现
-2. 量化评估各方法的偏差（Bias）、均方根误差（RMSE）等指标
-3. 从理论层面解释不同场景下方法表现差异的原因
-4. 结合模拟结果评价一篇使用PSM-DID的经济学论文
+## 项目结构
 
-## 仓库结构
 ```
-├── README.md               # 本说明文档
-├── Psm.py                  # 核心模拟代码（数据生成+估计量实现+可视化）
-├── assignment01_psm_did_monte_carlo.md  # 作业要求与背景
-├── results/                # 模拟结果输出（含指标表格、可视化图表）
-│   ├── metrics_A.csv       # 场景A的评估指标
-│   ├── metrics_B.csv       # 场景B的评估指标
-│   ├── metrics_C.csv       # 场景C的评估指标
-│   └── figures/            # 核密度图、倾向得分分布图等
-├── paper_evaluation.md     # 论文评价报告
-└── ai_usage_record.md      # AI工具使用记录
+.
+├── monte_carlo.py                # 完整模拟代码（Python）
+├── assignment01_psm_did_monte_carlo.md  # 作业要求
+├── ai_usage_record.md            # AI 工具使用记录（学术诚信）
+├── results_scenario_A.png        # 场景 A 结果图（运行代码生成）
+├── results_scenario_B.png        # 场景 B 结果图
+├── results_scenario_C.png        # 场景 C 结果图
+├── balance_scenario_*.png        # 匹配前后平衡性检验图
+├── ps_distribution_scenario_*.png # 倾向得分共同支持图
+├── summary_bias_comparison.png   # 三个场景偏误汇总图
+├── summary_rmse_comparison.png   # 三个场景 RMSE 汇总图
+└── README.md                     # 本文件
 ```
-
-## 核心功能说明
-### 1. 数据生成（generate_data函数）
-构造三种场景的面板数据：
-- **场景A**：基准情形（无条件平行趋势成立）
-- **场景B**：PSM-DID优势场景（趋势差异依赖可观测协变量X）
-- **场景C**：PSM-DID失效场景（存在未观测时变混淆变量U）
-
-### 2. 估计方法实现
-| 方法    | 函数               | 核心逻辑                                          |
-| ------- | ------------------ | ------------------------------------------------- |
-| DID     | `estimate_did`     | 标准双重差分回归（Y ~ treat + time + treat:time） |
-| PSM     | `estimate_psm`     | 倾向得分匹配后比较结果变化量的均值差              |
-| PSM-DID | `estimate_psm_did` | 先匹配再在匹配样本上执行DID回归                   |
-
-### 3. 模拟与评估
-- `run_simulation`：执行500次蒙特卡洛模拟，输出各方法的估计结果
-- `calculate_metrics`：计算偏差、RMSE、标准差等核心评估指标
-- `plot_simulation_results`：绘制估计值核密度分布图，直观对比方法表现
-- `check_balance_and_common_support`：检验协变量平衡性与倾向得分共同支持性
 
 ## 环境依赖
+
+代码使用 Python 3.8+，所需库如下：
+
 ```bash
-pip install numpy pandas seaborn matplotlib scikit-learn statsmodels
+pip install numpy pandas scipy scikit-learn matplotlib seaborn tqdm
 ```
 
-## 运行方式
+## 快速运行
+
+在终端中执行以下命令即可运行完整模拟（三个场景各 500 次，样本量 N=1000）：
+
 ```bash
-# 直接运行完整模拟流程
-python Psm.py
-
-# 分步运行（建议在Jupyter Notebook中执行）
-# 1. 生成模拟数据
-df_A = generate_data(scenario="A")
-
-# 2. 单次估计示例
-did_est = estimate_did(df_A)
-psm_est = estimate_psm(df_A)
-psm_did_est = estimate_psm_did(df_A)
-
-# 3. 执行完整模拟
-sim_results_A = run_simulation("A")
-
-# 4. 计算评估指标
-metrics_A = calculate_metrics(sim_results_A, TAU_TRUE)
-
-# 5. 可视化结果
-plot_simulation_results(data_to_plot_A, TAU_TRUE, "场景A (基准)")
+python monte_carlo.py
 ```
 
-## 关键结果结论
-1. **场景A**：DID、PSM、PSM-DID均能无偏估计真实处理效应，PSM-DID方差略低
-2. **场景B**：DID存在显著偏差，PSM-DID通过匹配恢复条件平行趋势，偏差大幅降低
-3. **场景C**：由于未观测时变混淆，PSM-DID仍无法解决识别问题，三种方法均失效
+运行完成后，控制台会输出每个场景下各方法的 Bias、RMSE、标准差等统计量，同时所有图表将自动保存为 PNG 文件。
 
+## 模拟设计
 
-## 学术诚信声明
-本仓库代码与报告为独立完成，仅用于课程作业交流。使用AI工具辅助的部分已在`ai_usage_record.md`中完整记录，所有引用内容均标注来源。严禁复制、篡改本仓库内容用于学术不端行为。
+### 基本参数
+- 样本量：$N = 1000$
+- 时期数：$T = 2$（处理前 $t=0$，处理后 $t=1$）
+- 模拟次数：$R = 500$
+- 真实处理效应：$\tau = 1$（常数）
+- 协变量：$X_i \sim N(0, 1)$
+- 个体固定效应：$\alpha_i \sim N(0, 1)$
+- 随机误差：$\varepsilon_{it} \sim N(0, 0.5)$
+- 匹配方法：1:1 最近邻匹配，卡尺 = 0.05，有放回
+
+### 三种数据生成过程（DGP）
+
+#### 场景 A – DID 表现的基准情形
+**目的**：处理组和控制组满足无条件平行趋势。  
+**处理分配**：$D_i$ 随机生成，与 $X_i$ 无关。  
+**结果方程**：$Y_i(0, t) = \alpha_i + 0.5X_i + t + \varepsilon_{it}$  
+**预期**：DID 表现最优，PSM 和 PSM-DID 因匹配损失样本而效率略低。
+
+#### 场景 B – PSM-DID 优于 DID 的情形
+**目的**：趋势差异依赖于 $X_i$，匹配后可恢复条件平行趋势。  
+**处理分配**：$P(D_i=1 \mid X_i) = \text{logit}^{-1}(-2 + 2X_i)$  
+**结果方程**：$Y_i(0, t) = \alpha_i + 1.5X_i + t + 1.5X_i \cdot t + \varepsilon_{it}$  
+**预期**：未匹配 DID 严重有偏，PSM-DID 几乎无偏，且优于单独 PSM。
+
+#### 场景 C – PSM-DID 失败的情形
+**目的**：存在不可观测的时间变化混淆（$U_i$ 同时影响处理和结果趋势）。  
+**处理分配**：$P(D_i=1 \mid X_i, U_i) = \text{logit}^{-1}(-1 + X_i + U_i)$  
+**结果方程**：$Y_i(0, t) = \alpha_i + 0.5X_i + t + 0.8U_i \cdot t + \varepsilon_{it}$  
+**预期**：所有方法均有偏，且 PSM/PSM-DID 的偏误可能大于未匹配 DID。
+
+## 模拟结果
+
+运行代码后，控制台输出如下统计结果（已验证）：
+
+### 场景 A
+| 方法      | Mean   | Bias    | RMSE   | Std    |
+| --------- | ------ | ------- | ------ | ------ |
+| basic_did | 0.9987 | -0.0013 | 0.0483 | 0.0483 |
+| did_cov   | 0.9987 | -0.0013 | 0.0483 | 0.0483 |
+| psm       | 1.0003 | 0.0003  | 0.0724 | 0.0724 |
+| psm_did   | 1.0002 | 0.0002  | 0.0714 | 0.0714 |
+
+**解读**：无条件平行趋势成立时，DID 效率最高（RMSE 最小）。PSM 和 PSM-DID 因匹配损失样本，效率下降约 33%。
+
+### 场景 B
+| 方法      | Mean   | Bias   | RMSE   | Std    |
+| --------- | ------ | ------ | ------ | ------ |
+| basic_did | 2.9313 | 1.9313 | 1.9340 | 0.1029 |
+| did_cov   | 2.9313 | 1.9313 | 1.9340 | 0.1029 |
+| psm       | 1.0372 | 0.0372 | 0.1209 | 0.1151 |
+| psm_did   | 1.0117 | 0.0117 | 0.1024 | 0.1018 |
+
+**解读**：未匹配 DID 偏误接近 193%，完全不可信；匹配后 PSM-DID 偏误降至 1.17%，RMSE 也最小。验证了 PSM-DID 通过匹配恢复条件平行趋势的能力。
+
+### 场景 C
+| 方法      | Mean   | Bias   | RMSE   | Std    |
+| --------- | ------ | ------ | ------ | ------ |
+| basic_did | 1.5925 | 0.5925 | 0.5961 | 0.0660 |
+| did_cov   | 1.5925 | 0.5925 | 0.5961 | 0.0660 |
+| psm       | 1.6676 | 0.6676 | 0.6762 | 0.1076 |
+| psm_did   | 1.6676 | 0.6676 | 0.6761 | 0.1069 |
+
+**解读**：所有方法均有显著偏误，且 PSM/PSM-DID 的偏误甚至大于基础 DID。这揭示了 PSM-DID 的核心局限——对**随时间变化的未观测混淆**完全无效，甚至可能放大偏误。
+
+## 图表说明
+
+运行代码后自动生成以下图表（均保存为 PNG）：
+
+- **results_scenario_X.png**：每个场景的四合一图（核密度、偏误柱状图、RMSE 柱状图、箱线图）。
+- **balance_scenario_X.png**：匹配前后协变量标准化差异及倾向得分均值差异。
+- **ps_distribution_scenario_X.png**：倾向得分分布直方图及累积分布图（用于检验共同支持）。
+- **summary_bias_comparison.png**：三个场景偏误汇总对比。
+- **summary_rmse_comparison.png**：三个场景 RMSE 汇总对比。
+
+这些图表可直接用于作业报告或论文展示。
+
+## 理论解释要点
+
+基于模拟结果，本作业回答了六个理论问题（详见报告）：
+
+1. **PSM 有效条件**：处理分配仅依赖可观测协变量，且条件可忽略性成立（场景 B 证明）。
+2. **DID 有效条件**：无条件平行趋势成立 + 个体固定效应可被差分消除（场景 A 证明）。
+3. **PSM-DID 优于 DID 的条件**：趋势差异由可观测协变量驱动，匹配后条件平行趋势恢复（场景 B）。
+4. **PSM-DID 失败条件**：存在随时间变化的不可观测混淆（场景 C），或共同支持严重不足。
+5. **估计对象**：标准 1:1 最近邻匹配估计的是 **ATT**，若处理效应同质则 ATE=ATT。
+6. **共同支持不足的影响**：同时增大偏误（外推）和方差（样本损失）。
+
+## 参考文献
+
+- Rosenbaum, P. R., & Rubin, D. B. (1983). The central role of the propensity score in observational studies for causal effects. *Biometrika*, 70(1), 41-55.
+- Heckman, J. J., Ichimura, H., & Todd, P. E. (1997). Matching as an econometric evaluation estimator. *The Review of Economic Studies*, 64(4), 605-654.
+- Smith, J. A., & Todd, P. E. (2005). Does matching overcome LaLonde's critique of nonexperimental estimators? *Journal of Econometrics*, 125(1-2), 305-353.
+- 石大千，丁海，卫平，刘建江. 智慧城市建设能否降低环境污染[J]. 中国工业经济，2018(6): 117-135.（作业文献评价部分）
+
+## 学术诚信与 AI 使用
+
+本项目的代码完全由本人独立编写和调试，模拟结果真实可复现。在理论解释和文献评价部分使用了 AI 工具进行辅助梳理，所有核心判断和结论均由本人负责。详细的 AI 使用记录见 `ai_usage_record.md`。
+
+## 联系方式
+
+如有疑问或建议，欢迎通过课程讨论群或邮件联系。
+
+--- 
+**最后更新**：2026 年 5 月  
+**课程**：机器学习与因果推断
+```
