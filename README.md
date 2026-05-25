@@ -11,6 +11,7 @@
 ├── ai_usage_record.md                 # AI 工具使用记录
 ├── ai_report.md                       # AI 辅助写作说明
 ├── final_report.md                    # 完整作业报告
+├── 智慧城市建设能否降低环境污染.pdf       # 参考论文
 ├── figures/                           # 图表文件夹
 │   ├── results_scenario_A.png         # 场景 A 结果图
 │   ├── results_scenario_B.png         # 场景 B 结果图
